@@ -1,0 +1,17 @@
+package taskmanagement1
+
+import taskmanagement1.secu.User
+
+class Ressource  extends User{
+	
+	static belongsTo = [taches: Task,projet:Project,modules: Module]
+	
+	
+	 static constraints = {
+		 
+		 
+		 
+	 }
+	 
+	
+	}
