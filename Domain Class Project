@@ -1,1 +1,24 @@
-class Project
+package taskmanagement1
+
+import java.util.Date;
+
+class Project {
+
+	String nom
+	String description
+	Date datedebut
+	Date datefin
+	static hasMany = [modules: Module,taches:Task]
+	static constraints = {
+		nom(nullable:true)
+		description(nullable:true)
+		datedebut(nullable:true)
+		datefin(nullable:true)
+}
+	String toString() {
+		"$nom"
+   }
+	
+	
+	
+}
