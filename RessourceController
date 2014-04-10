@@ -1,0 +1,102 @@
+package taskmanagement1
+
+import org.springframework.dao.DataIntegrityViolationException
+
+class RessourceController {
+
+    static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+
+    def index() {
+        redirect(action: "list", params: params)
+    }
+
+    def list(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        [ressourceInstanceList: Ressource.list(params), ressourceInstanceTotal: Ressource.count()]
+    }
+
+    def create() {
+        [ressourceInstance: new Ressource(params)]
+    }
+
+    def save() {
+        def ressourceInstance = new Ressource(params)
+        if (!ressourceInstance.save(flush: true)) {
+            render(view: "create", model: [ressourceInstance: ressourceInstance])
+            return
+        }
+
+        flash.message = message(code: 'default.created.message', args: [message(code: 'ressource.label', default: 'Ressource'), ressourceInstance.id])
+        redirect(action: "show", id: ressourceInstance.id)
+    }
+
+    def show(Long id) {
+        def ressourceInstance = Ressource.get(id)
+        if (!ressourceInstance) {
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'ressource.label', default: 'Ressource'), id])
+            redirect(action: "list")
+            return
+        }
+
+        [ressourceInstance: ressourceInstance]
+    }
+
+    def edit(Long id) {
+        def ressourceInstance = Ressource.get(id)
+        if (!ressourceInstance) {
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'ressource.label', default: 'Ressource'), id])
+            redirect(action: "list")
+            return
+        }
+
+        [ressourceInstance: ressourceInstance]
+    }
+
+    def update(Long id, Long version) {
+        def ressourceInstance = Ressource.get(id)
+        if (!ressourceInstance) {
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'ressource.label', default: 'Ressource'), id])
+            redirect(action: "list")
+            return
+        }
+
+        if (version != null) {
+            if (ressourceInstance.version > version) {
+                ressourceInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
+                          [message(code: 'ressource.label', default: 'Ressource')] as Object[],
+                          "Another user has updated this Ressource while you were editing")
+                render(view: "edit", model: [ressourceInstance: ressourceInstance])
+                return
+            }
+        }
+
+        ressourceInstance.properties = params
+
+        if (!ressourceInstance.save(flush: true)) {
+            render(view: "edit", model: [ressourceInstance: ressourceInstance])
+            return
+        }
+
+        flash.message = message(code: 'default.updated.message', args: [message(code: 'ressource.label', default: 'Ressource'), ressourceInstance.id])
+        redirect(action: "show", id: ressourceInstance.id)
+    }
+
+    def delete(Long id) {
+        def ressourceInstance = Ressource.get(id)
+        if (!ressourceInstance) {
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'ressource.label', default: 'Ressource'), id])
+            redirect(action: "list")
+            return
+        }
+
+        try {
+            ressourceInstance.delete(flush: true)
+            flash.message = message(code: 'default.deleted.message', args: [message(code: 'ressource.label', default: 'Ressource'), id])
+            redirect(action: "list")
+        }
+        catch (DataIntegrityViolationException e) {
+            flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'ressource.label', default: 'Ressource'), id])
+            redirect(action: "show", id: id)
+        }
+    }
+}
