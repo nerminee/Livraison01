@@ -1,0 +1,32 @@
+package taskmanagement1
+
+import java.util.Date;
+
+class Task {
+	String nom
+	Date duree
+	String description
+	Boolean statut
+	Date datedebut
+
+	Date datefin
+	static belongsTo = [module: Module, projet:Project]
+	static hasmany = [ressources: Ressource]
+	static constraints = {
+		nom(blank:false)
+		
+		duree(blank:false)
+		statut(blank:false)
+		description(blank:false)
+		datedebut(blank:false)
+		datefin(blank:false)
+	}
+	String toString() {
+		"$nom"
+   }
+	
+	
+	
+	
+	
+}
